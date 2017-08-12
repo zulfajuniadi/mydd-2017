@@ -84,7 +84,7 @@ function addMediaTrackConstraint(trackConstraints, constraintString) {
   }
 
   if (tokens.length > 0) {
-    tokens = tokens[tokens.length-1].split('=');
+    tokens = tokens[tokens.length - 1].split('=');
     if (tokens.length == 2) {
       if (mandatory) {
         trackConstraints.mandatory[tokens[0]] = tokens[1];
@@ -127,6 +127,7 @@ function makeMediaStreamConstraints(audio, video, firefoxFakeDevice) {
 
 function getWSSParameters(req) {
   var wssHostPortPair = req.query['wshpp'];
+  // var wssHostPortPair = req.query['wshpp'];
   var wssTLS = req.query['wstls'];
 
   if (!wssHostPortPair) {
@@ -140,7 +141,7 @@ function getWSSParameters(req) {
     //  wssHostPortPair = wssActiveHost;
     //} else {
     //  console.warn('Invalid or no value returned from memcache, using fallback: '  + JSON.stringify(wssActiveHost));
-      wssHostPortPair = constants.WSS_HOST_PORT_PAIRS[0];
+    wssHostPortPair = constants.WSS_HOST_PORT_PAIRS[0];
     //}
   }
 
@@ -261,7 +262,7 @@ function getRoomParameters(req, roomId, clientId, isInitiator) {
    a random id, but we should make this better.
    */
   var username = clientId ? clientId : generateRandom(9);
-  var turnUrl = turnBaseUrl.length  > 0 ? util.format(constants.TURN_URL_TEMPLATE, turnBaseUrl, username, constants.CEOD_KEY) : undefined;
+  var turnUrl = turnBaseUrl.length > 0 ? util.format(constants.TURN_URL_TEMPLATE, turnBaseUrl, username, constants.CEOD_KEY) : undefined;
 
   var pcConfig = makePCConfig(iceTransports);
   var pcConstraints = makePCConstraints(dtls, dscp, ipv6);
@@ -274,14 +275,14 @@ function getRoomParameters(req, roomId, clientId, isInitiator) {
 
   var params = {
     'error_messages': errorMessages,
-    'is_loopback' : JSON.stringify(debug == 'loopback'),
+    'is_loopback': JSON.stringify(debug == 'loopback'),
     'pc_config': JSON.stringify(pcConfig),
     'pc_constraints': JSON.stringify(pcConstraints),
     'offer_constraints': JSON.stringify(offerConstraints),
     'media_constraints': JSON.stringify(mediaConstraints),
     'turn_url': turnUrl,
     'turn_transports': turnTransports,
-    'include_loopback_js' : includeLoopbackJS,
+    'include_loopback_js': includeLoopbackJS,
     'wss_url': wssUrl,
     'wss_post_url': wssPostUrl,
     'bypass_join_confirmation': JSON.stringify(bypassJoinConfirmation),
@@ -292,7 +293,7 @@ function getRoomParameters(req, roomId, clientId, isInitiator) {
   if (!protocol) protocol = "http";
   if (roomId) {
     params['room_id'] = roomId;
-    params['room_link'] =  protocol + "://" + req.headers.host + '/r/' + roomId + '?' + querystring.stringify(req.query);
+    params['room_link'] = protocol + "://" + req.headers.host + '/r/' + roomId + '?' + querystring.stringify(req.query);
   }
   if (clientId) {
     params['client_id'] = clientId;
@@ -310,7 +311,7 @@ function getCacheKeyForRoom(host, roomId) {
 
 function addClientToRoom(req, roomId, clientId, isLoopback, callback) {
   var key = getCacheKeyForRoom(req.headers.host, roomId);
-  rooms.createIfNotExist(key, function(error, room) {
+  rooms.createIfNotExist(key, function (error, room) {
     if (error) {
       callback(error);
       return;
@@ -320,14 +321,14 @@ function addClientToRoom(req, roomId, clientId, isLoopback, callback) {
     var occupancy = room.getOccupancy();
     if (occupancy >= 2) {
       error = constants.RESPONSE_ROOM_FULL;
-      callback(error, { is_initiator: isInitiator, messages:[]});
+      callback(error, { is_initiator: isInitiator, messages: [] });
     } else if (room.hasClient(clientId)) {
       error = constants.RESPONSE_DUPLICATE_CLIENT;
-      callback(error, { is_initiator: isInitiator, messages:[]});
+      callback(error, { is_initiator: isInitiator, messages: [] });
     } else {
-      room.join(clientId, function(error, client, otherClient) {
+      room.join(clientId, function (error, client, otherClient) {
         if (error) {
-          callback(error, { is_initiator: isInitiator, messages:[]});
+          callback(error, { is_initiator: isInitiator, messages: [] });
           return;
         }
         if (client.isInitiator && isLoopback) {
@@ -346,13 +347,13 @@ function addClientToRoom(req, roomId, clientId, isLoopback, callback) {
 function saveMessageFromClient(host, roomId, clientId, message, callback) {
   var text = message;
   var key = getCacheKeyForRoom(host, roomId);
-  rooms.get(key, function(error, room) {
+  rooms.get(key, function (error, room) {
     if (!room) {
       console.warn('Unknown room: ' + roomId);
-      callback({error: constants.RESPONSE_UNKNOWN_ROOM}, false);
+      callback({ error: constants.RESPONSE_UNKNOWN_ROOM }, false);
     } else if (!room.hasClient(clientId)) {
       console.warn('Unknown client: ' + clientId);
-      callback({error: constants.RESPONSE_UNKNOWN_CLIENT}, false);
+      callback({ error: constants.RESPONSE_UNKNOWN_CLIENT }, false);
     } else if (room.getOccupancy() > 1) {
       callback(null, false);
     } else {
@@ -364,20 +365,20 @@ function saveMessageFromClient(host, roomId, clientId, message, callback) {
   });
 }
 
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
   // Parse out parameters from request.
   var params = getRoomParameters(req, null, null, null);
   res.render("index_template", params);
 });
 
-router.post('/join/:roomId', function(req, res, next) {
+router.post('/join/:roomId', function (req, res, next) {
   var roomId = req.params.roomId;
   var clientId = generateRandom(8);
   var isLoopback = req.query['debug'] == 'loopback';
-  addClientToRoom(req, roomId, clientId, isLoopback, function(error, result) {
+  addClientToRoom(req, roomId, clientId, isLoopback, function (error, result) {
     if (error) {
       console.error('Error adding client to room: ' + error + ', room_state=' + result.room_state);
-      res.send({result: error, params: result});
+      res.send({ result: error, params: result });
       return;
     }
     var params = getRoomParameters(req, roomId, clientId, result.is_initiator);
@@ -394,11 +395,11 @@ router.post('/join/:roomId', function(req, res, next) {
   });
 });
 
-router.post('/message/:roomId/:clientId', function(req, res, next) {
+router.post('/message/:roomId/:clientId', function (req, res, next) {
   var roomId = req.params.roomId;
   var clientId = req.params.clientId;
   var message = req.body;
-  saveMessageFromClient(req.headers.host, roomId, clientId, message, function(error, saved) {
+  saveMessageFromClient(req.headers.host, roomId, clientId, message, function (error, saved) {
     if (error) {
       res.send({ result: error });
       return;
@@ -419,7 +420,7 @@ router.post('/message/:roomId/:clientId', function(req, res, next) {
         path: '/' + roomId + '/' + clientId,
         method: 'POST'
       };
-      var postRequest = https.request(postOptions, function(httpRes) {
+      var postRequest = https.request(postOptions, function (httpRes) {
         if (httpRes.statusCode == 200) {
           res.send({ result: constants.RESPONSE_SUCCESS });
         } else {
@@ -434,10 +435,10 @@ router.post('/message/:roomId/:clientId', function(req, res, next) {
   });
 });
 
-router.get('/r/:roomId', function(req, res, next) {
+router.get('/r/:roomId', function (req, res, next) {
   var roomId = req.params.roomId;
   var key = getCacheKeyForRoom(req.headers.host, roomId);
-  rooms.get(key, function(error, room) {
+  rooms.get(key, function (error, room) {
     if (room) {
       console.log('Room ' + roomId + ' has state ' + room.toString());
       // Check if room is full
@@ -455,25 +456,25 @@ router.get('/r/:roomId', function(req, res, next) {
   });
 });
 
-router.post('/leave/:roomId/:clientId', function(req, res, next) {
+router.post('/leave/:roomId/:clientId', function (req, res, next) {
   var roomId = req.params.roomId;
   var clientId = req.params.clientId;
   var key = getCacheKeyForRoom(req.headers.host, roomId);
-  rooms.get(key, function(error, room) {
+  rooms.get(key, function (error, room) {
     if (!room) {
       console.warn('Unknown room: ' + roomId);
-      callback({error: constants.RESPONSE_UNKNOWN_ROOM}, false);
+      callback({ error: constants.RESPONSE_UNKNOWN_ROOM }, false);
     } else if (!room.hasClient(clientId)) {
       console.warn('Unknown client: ' + clientId);
-      callback({error: constants.RESPONSE_UNKNOWN_CLIENT}, false);
+      callback({ error: constants.RESPONSE_UNKNOWN_CLIENT }, false);
     } else {
-      room.removeClient(clientId, function(error, isRemoved, otherClient) {
+      room.removeClient(clientId, function (error, isRemoved, otherClient) {
         if (error) {
           res.send({ result: error });
           return;
         }
         if (room.hasClient(constants.LOOPBACK_CLIENT_ID)) {
-          room.removeClient(constants.LOOPBACK_CLIENT_ID, function(error, isRemoved) {
+          room.removeClient(constants.LOOPBACK_CLIENT_ID, function (error, isRemoved) {
             res.send({ result: constants.RESPONSE_SUCCESS });
           });
         } else {

@@ -19,9 +19,9 @@ if (navigator.mozGetUserMedia) {
   console.log("This appears to be Firefox");
   webrtcDetectedBrowser = "firefox";
   webrtcDetectedVersion = parseInt(navigator.userAgent.match(/Firefox\/([0-9]+)\./)[1], 10);
-  RTCPeerConnection = function(pcConfig, pcConstraints) {
+  RTCPeerConnection = function (pcConfig, pcConstraints) {
     if (pcConfig && pcConfig.iceServers) {
-      for (var i = 0;i < pcConfig.iceServers.length;i++) {
+      for (var i = 0; i < pcConfig.iceServers.length; i++) {
         if (pcConfig.iceServers[i].hasOwnProperty("urls")) {
           pcConfig.iceServers[i].url = pcConfig.iceServers[i].urls;
           delete pcConfig.iceServers[i].urls;
@@ -34,34 +34,34 @@ if (navigator.mozGetUserMedia) {
   window.RTCIceCandidate = mozRTCIceCandidate;
   getUserMedia = navigator.mozGetUserMedia.bind(navigator);
   navigator.getUserMedia = getUserMedia;
-  MediaStreamTrack.getSources = function(successCb) {
-    setTimeout(function() {
-      var infos = [{kind:"audio", id:"default", label:"", facing:""}, {kind:"video", id:"default", label:"", facing:""}];
+  MediaStreamTrack.getSources = function (successCb) {
+    setTimeout(function () {
+      var infos = [{ kind: "audio", id: "default", label: "", facing: "" }, { kind: "video", id: "default", label: "", facing: "" }];
       successCb(infos);
     }, 0);
   };
-  window.createIceServer = function(url, username, password) {
+  window.createIceServer = function (url, username, password) {
     var iceServer = null;
     var urlParts = url.split(":");
     if (urlParts[0].indexOf("stun") === 0) {
-      iceServer = {"url":url};
+      iceServer = { "url": url };
     } else {
       if (urlParts[0].indexOf("turn") === 0) {
         if (webrtcDetectedVersion < 27) {
           var turnUrlParts = url.split("?");
           if (turnUrlParts.length === 1 || turnUrlParts[1].indexOf("transport=udp") === 0) {
-            iceServer = {"url":turnUrlParts[0], "credential":password, "username":username};
+            iceServer = { "url": turnUrlParts[0], "credential": password, "username": username };
           }
         } else {
-          iceServer = {"url":url, "credential":password, "username":username};
+          iceServer = { "url": url, "credential": password, "username": username };
         }
       }
     }
     return iceServer;
   };
-  window.createIceServers = function(urls, username, password) {
+  window.createIceServers = function (urls, username, password) {
     var iceServers = [];
-    for (var i = 0;i < urls.length;i++) {
+    for (var i = 0; i < urls.length; i++) {
       var iceServer = window.createIceServer(urls[i], username, password);
       if (iceServer !== null) {
         iceServers.push(iceServer);
@@ -69,11 +69,11 @@ if (navigator.mozGetUserMedia) {
     }
     return iceServers;
   };
-  attachMediaStream = function(element, stream) {
+  attachMediaStream = function (element, stream) {
     console.log("Attaching media stream");
     element.mozSrcObject = stream;
   };
-  reattachMediaStream = function(to, from) {
+  reattachMediaStream = function (to, from) {
     console.log("Reattaching media stream");
     to.mozSrcObject = from.mozSrcObject;
   };
@@ -87,27 +87,27 @@ if (navigator.mozGetUserMedia) {
     } else {
       webrtcDetectedVersion = 999;
     }
-    window.createIceServer = function(url, username, password) {
+    window.createIceServer = function (url, username, password) {
       var iceServer = null;
       var urlParts = url.split(":");
       if (urlParts[0].indexOf("stun") === 0) {
-        iceServer = {"url":url};
+        iceServer = { "url": url };
       } else {
         if (urlParts[0].indexOf("turn") === 0) {
-          iceServer = {"url":url, "credential":password, "username":username};
+          iceServer = { "url": url, "credential": password, "username": username };
         }
       }
       return iceServer;
     };
-    window.createIceServers = function(urls, username, password) {
-      return{"urls":urls, "credential":password, "username":username};
+    window.createIceServers = function (urls, username, password) {
+      return { "urls": urls, "credential": password, "username": username };
     };
-    RTCPeerConnection = function(pcConfig, pcConstraints) {
+    RTCPeerConnection = function (pcConfig, pcConstraints) {
       return new webkitRTCPeerConnection(pcConfig, pcConstraints);
     };
     getUserMedia = navigator.webkitGetUserMedia.bind(navigator);
     navigator.getUserMedia = getUserMedia;
-    attachMediaStream = function(element, stream) {
+    attachMediaStream = function (element, stream) {
       if (typeof element.srcObject !== "undefined") {
         element.srcObject = stream;
       } else {
@@ -122,7 +122,7 @@ if (navigator.mozGetUserMedia) {
         }
       }
     };
-    reattachMediaStream = function(to, from) {
+    reattachMediaStream = function (to, from) {
       to.src = from.src;
     };
   } else {
@@ -130,11 +130,11 @@ if (navigator.mozGetUserMedia) {
   }
 }
 function requestUserMedia(constraints) {
-  return new Promise(function(resolve, reject) {
-    var onSuccess = function(stream) {
+  return new Promise(function (resolve, reject) {
+    var onSuccess = function (stream) {
       resolve(stream);
     };
-    var onError = function(error) {
+    var onError = function (error) {
       reject(error);
     };
     try {
@@ -144,10 +144,12 @@ function requestUserMedia(constraints) {
     }
   });
 }
-;var remoteVideo = $("#remote-video");
-var UI_CONSTANTS = {confirmJoinButton:"#confirm-join-button", confirmJoinDiv:"#confirm-join-div", confirmJoinRoomSpan:"#confirm-join-room-span", fullscreenSvg:"#fullscreen", hangupSvg:"#hangup", icons:"#icons", infoDiv:"#info-div", localVideo:"#local-video", miniVideo:"#mini-video", muteAudioSvg:"#mute-audio", muteVideoSvg:"#mute-video", newRoomButton:"#new-room-button", newRoomLink:"#new-room-link", remoteVideo:"#remote-video", rejoinButton:"#rejoin-button", rejoinDiv:"#rejoin-div", rejoinLink:"#rejoin-link",
-  roomLinkHref:"#room-link-href", roomSelectionDiv:"#room-selection", roomSelectionInput:"#room-id-input", roomSelectionInputLabel:"#room-id-input-label", roomSelectionJoinButton:"#join-button", roomSelectionRandomButton:"#random-button", roomSelectionRecentList:"#recent-rooms-list", sharingDiv:"#sharing-div", statusDiv:"#status-div", videosDiv:"#videos"};
-var AppController = function(loadingParams) {
+; var remoteVideo = $("#remote-video");
+var UI_CONSTANTS = {
+  confirmJoinButton: "#confirm-join-button", confirmJoinDiv: "#confirm-join-div", confirmJoinRoomSpan: "#confirm-join-room-span", fullscreenSvg: "#fullscreen", hangupSvg: "#hangup", icons: "#icons", infoDiv: "#info-div", localVideo: "#local-video", miniVideo: "#mini-video", muteAudioSvg: "#mute-audio", muteVideoSvg: "#mute-video", newRoomButton: "#new-room-button", newRoomLink: "#new-room-link", remoteVideo: "#remote-video", rejoinButton: "#rejoin-button", rejoinDiv: "#rejoin-div", rejoinLink: "#rejoin-link",
+  roomLinkHref: "#room-link-href", roomSelectionDiv: "#room-selection", roomSelectionInput: "#room-id-input", roomSelectionInputLabel: "#room-id-input-label", roomSelectionJoinButton: "#join-button", roomSelectionRandomButton: "#random-button", roomSelectionRecentList: "#recent-rooms-list", sharingDiv: "#sharing-div", statusDiv: "#status-div", videosDiv: "#videos"
+};
+var AppController = function (loadingParams) {
   console.log("Initializing; server= " + loadingParams.roomServer + ".");
   console.log("Initializing; room=" + loadingParams.roomId + ".");
   this.hangupSvg_ = $(UI_CONSTANTS.hangupSvg);
@@ -175,9 +177,9 @@ var AppController = function(loadingParams) {
   if (this.loadingParams_.paramsFunction) {
     paramsPromise = this.loadingParams_.paramsFunction();
   }
-  Promise.resolve(paramsPromise).then(function(newParams) {
+  Promise.resolve(paramsPromise).then(function (newParams) {
     if (newParams) {
-      Object.keys(newParams).forEach(function(key) {
+      Object.keys(newParams).forEach(function (key) {
         this.loadingParams_[key] = newParams[key];
       }.bind(this));
     }
@@ -192,7 +194,7 @@ var AppController = function(loadingParams) {
       }
       var confirmJoinDiv = $(UI_CONSTANTS.confirmJoinDiv);
       this.show_(confirmJoinDiv);
-      $(UI_CONSTANTS.confirmJoinButton).onclick = function() {
+      $(UI_CONSTANTS.confirmJoinButton).onclick = function () {
         this.hide_(confirmJoinDiv);
         var recentlyUsedList = new RoomSelection.RecentlyUsedList;
         recentlyUsedList.pushRecentRoom(this.loadingParams_.roomId);
@@ -204,16 +206,16 @@ var AppController = function(loadingParams) {
     } else {
       this.showRoomSelection_();
     }
-  }.bind(this)).catch(function(error) {
+  }.bind(this)).catch(function (error) {
     console.log("Error initializing: " + error.message);
   }.bind(this));
 };
-AppController.prototype.createCall_ = function() {
+AppController.prototype.createCall_ = function () {
   this.call_ = new Call(this.loadingParams_);
   this.infoBox_ = new InfoBox($(UI_CONSTANTS.infoDiv), this.remoteVideo_, this.call_, this.loadingParams_.versionInfo);
   var roomErrors = this.loadingParams_.errorMessages;
   if (roomErrors && roomErrors.length > 0) {
-    for (var i = 0;i < roomErrors.length;++i) {
+    for (var i = 0; i < roomErrors.length; ++i) {
       this.infoBox_.pushErrorMessage(roomErrors[i]);
     }
     return;
@@ -229,11 +231,11 @@ AppController.prototype.createCall_ = function() {
   this.call_.onstatusmessage = this.displayStatus_.bind(this);
   this.call_.oncallerstarted = this.displaySharingInfo_.bind(this);
 };
-AppController.prototype.showRoomSelection_ = function() {
+AppController.prototype.showRoomSelection_ = function () {
   var roomSelectionDiv = $(UI_CONSTANTS.roomSelectionDiv);
   this.roomSelection_ = new RoomSelection(roomSelectionDiv, UI_CONSTANTS);
   this.show_(roomSelectionDiv);
-  this.roomSelection_.onRoomSelected = function(roomName) {
+  this.roomSelection_.onRoomSelected = function (roomName) {
     this.hide_(roomSelectionDiv);
     this.createCall_();
     this.finishCallSetup_(roomName);
@@ -243,7 +245,7 @@ AppController.prototype.showRoomSelection_ = function() {
     }
   }.bind(this);
 };
-AppController.prototype.finishCallSetup_ = function(roomId) {
+AppController.prototype.finishCallSetup_ = function (roomId) {
   this.call_.start(roomId);
   document.onkeypress = this.onKeyPress_.bind(this);
   window.onmousemove = this.showIcons_.bind(this);
@@ -253,10 +255,10 @@ AppController.prototype.finishCallSetup_ = function(roomId) {
   $(UI_CONSTANTS.hangupSvg).onclick = this.hangup_.bind(this);
   setUpFullScreen();
   if (!isChromeApp()) {
-    window.onbeforeunload = function() {
+    window.onbeforeunload = function () {
       this.call_.hangup(false);
     }.bind(this);
-    window.onpopstate = function(event) {
+    window.onpopstate = function (event) {
       if (!event.state) {
         console.log("Reloading main page.");
         location.href = location.origin;
@@ -268,19 +270,19 @@ AppController.prototype.finishCallSetup_ = function(roomId) {
     };
   }
 };
-AppController.prototype.hangup_ = function() {
+AppController.prototype.hangup_ = function () {
   console.log("Hanging up.");
   this.hide_(this.icons_);
   this.displayStatus_("Hanging up");
   this.transitionToDone_();
   this.call_.hangup(true);
 };
-AppController.prototype.onRemoteHangup_ = function() {
+AppController.prototype.onRemoteHangup_ = function () {
   this.displayStatus_("The remote side hung up.");
   this.transitionToWaiting_();
   this.call_.onRemoteHangup();
 };
-AppController.prototype.onRemoteSdpSet_ = function(hasRemoteVideo) {
+AppController.prototype.onRemoteSdpSet_ = function (hasRemoteVideo) {
   if (hasRemoteVideo) {
     console.log("Waiting for remote video.");
     this.waitForRemoteVideo_();
@@ -289,7 +291,7 @@ AppController.prototype.onRemoteSdpSet_ = function(hasRemoteVideo) {
     this.transitionToActive_();
   }
 };
-AppController.prototype.waitForRemoteVideo_ = function() {
+AppController.prototype.waitForRemoteVideo_ = function () {
   if (this.remoteVideo_.readyState >= 2) {
     console.log("Remote video started; currentTime: " + this.remoteVideo_.currentTime);
     this.transitionToActive_();
@@ -297,7 +299,7 @@ AppController.prototype.waitForRemoteVideo_ = function() {
     this.remoteVideo_.oncanplay = this.waitForRemoteVideo_.bind(this);
   }
 };
-AppController.prototype.onRemoteStreamAdded_ = function(stream) {
+AppController.prototype.onRemoteStreamAdded_ = function (stream) {
   this.deactivate_(this.sharingDiv_);
   console.log("Remote stream added.");
   attachMediaStream(this.remoteVideo_, stream);
@@ -306,20 +308,20 @@ AppController.prototype.onRemoteStreamAdded_ = function(stream) {
     this.remoteVideoResetTimer_ = null;
   }
 };
-AppController.prototype.onLocalStreamAdded_ = function(stream) {
+AppController.prototype.onLocalStreamAdded_ = function (stream) {
   console.log("User has granted access to local media.");
   this.localStream_ = stream;
   if (!this.roomSelection_) {
     this.attachLocalStream_();
   }
 };
-AppController.prototype.attachLocalStream_ = function() {
+AppController.prototype.attachLocalStream_ = function () {
   attachMediaStream(this.localVideo_, this.localStream_);
   this.displayStatus_("");
   this.activate_(this.localVideo_);
   this.show_(this.icons_);
 };
-AppController.prototype.transitionToActive_ = function() {
+AppController.prototype.transitionToActive_ = function () {
   this.remoteVideo_.oncanplay = undefined;
   var connectTime = window.performance.now();
   this.infoBox_.setSetupTimes(this.call_.startTime, connectTime);
@@ -335,12 +337,12 @@ AppController.prototype.transitionToActive_ = function() {
   this.show_(this.hangupSvg_);
   this.displayStatus_("");
 };
-AppController.prototype.transitionToWaiting_ = function() {
+AppController.prototype.transitionToWaiting_ = function () {
   this.remoteVideo_.oncanplay = undefined;
   this.hide_(this.hangupSvg_);
   this.deactivate_(this.videosDiv_);
   if (!this.remoteVideoResetTimer_) {
-    this.remoteVideoResetTimer_ = setTimeout(function() {
+    this.remoteVideoResetTimer_ = setTimeout(function () {
       this.remoteVideoResetTimer_ = null;
       console.log("Resetting remoteVideo src after transitioning to waiting.");
       this.remoteVideo_.src = "";
@@ -351,7 +353,7 @@ AppController.prototype.transitionToWaiting_ = function() {
   this.deactivate_(this.remoteVideo_);
   this.deactivate_(this.miniVideo_);
 };
-AppController.prototype.transitionToDone_ = function() {
+AppController.prototype.transitionToDone_ = function () {
   this.remoteVideo_.oncanplay = undefined;
   this.deactivate_(this.localVideo_);
   this.deactivate_(this.remoteVideo_);
@@ -361,18 +363,18 @@ AppController.prototype.transitionToDone_ = function() {
   this.show_(this.rejoinDiv_);
   this.displayStatus_("");
 };
-AppController.prototype.onRejoinClick_ = function() {
+AppController.prototype.onRejoinClick_ = function () {
   this.deactivate_(this.rejoinDiv_);
   this.hide_(this.rejoinDiv_);
   this.call_.restart();
 };
-AppController.prototype.onNewRoomClick_ = function() {
+AppController.prototype.onNewRoomClick_ = function () {
   this.deactivate_(this.rejoinDiv_);
   this.hide_(this.rejoinDiv_);
   this.showRoomSelection_();
 };
-AppController.prototype.onKeyPress_ = function(event) {
-  switch(String.fromCharCode(event.charCode)) {
+AppController.prototype.onKeyPress_ = function (event) {
+  switch (String.fromCharCode(event.charCode)) {
     case " ":
       ;
     case "m":
@@ -398,19 +400,19 @@ AppController.prototype.onKeyPress_ = function(event) {
       return;
   }
 };
-AppController.prototype.pushCallNavigation_ = function(roomId, roomLink) {
+AppController.prototype.pushCallNavigation_ = function (roomId, roomLink) {
   if (!isChromeApp()) {
-    window.history.pushState({"roomId":roomId, "roomLink":roomLink}, roomId, roomLink);
+    window.history.pushState({ "roomId": roomId, "roomLink": roomLink }, roomId, roomLink);
   }
 };
-AppController.prototype.displaySharingInfo_ = function(roomId, roomLink) {
+AppController.prototype.displaySharingInfo_ = function (roomId, roomLink) {
   this.roomLinkHref_.href = roomLink;
   this.roomLinkHref_.text = roomLink;
   this.roomLink_ = roomLink;
   this.pushCallNavigation_(roomId, roomLink);
   this.activate_(this.sharingDiv_);
 };
-AppController.prototype.displayStatus_ = function(status) {
+AppController.prototype.displayStatus_ = function (status) {
   if (status === "") {
     this.deactivate_(this.statusDiv_);
   } else {
@@ -418,19 +420,19 @@ AppController.prototype.displayStatus_ = function(status) {
   }
   this.statusDiv_.innerHTML = status;
 };
-AppController.prototype.displayError_ = function(error) {
+AppController.prototype.displayError_ = function (error) {
   console.log(error);
   this.infoBox_.pushErrorMessage(error);
 };
-AppController.prototype.toggleAudioMute_ = function() {
+AppController.prototype.toggleAudioMute_ = function () {
   this.call_.toggleAudioMute();
   this.muteAudioIconSet_.toggle();
 };
-AppController.prototype.toggleVideoMute_ = function() {
+AppController.prototype.toggleVideoMute_ = function () {
   this.call_.toggleVideoMute();
   this.muteVideoIconSet_.toggle();
 };
-AppController.prototype.toggleFullScreen_ = function() {
+AppController.prototype.toggleFullScreen_ = function () {
   if (isFullScreen()) {
     console.log("Exiting fullscreen.");
     document.cancelFullScreen();
@@ -440,27 +442,27 @@ AppController.prototype.toggleFullScreen_ = function() {
   }
   this.fullscreenIconSet_.toggle();
 };
-AppController.prototype.hide_ = function(element) {
+AppController.prototype.hide_ = function (element) {
   element.classList.add("hidden");
 };
-AppController.prototype.show_ = function(element) {
+AppController.prototype.show_ = function (element) {
   element.classList.remove("hidden");
 };
-AppController.prototype.activate_ = function(element) {
+AppController.prototype.activate_ = function (element) {
   element.classList.add("active");
 };
-AppController.prototype.deactivate_ = function(element) {
+AppController.prototype.deactivate_ = function (element) {
   element.classList.remove("active");
 };
-AppController.prototype.showIcons_ = function() {
+AppController.prototype.showIcons_ = function () {
   if (!this.icons_.classList.contains("active")) {
     this.activate_(this.icons_);
-    setTimeout(function() {
+    setTimeout(function () {
       this.deactivate_(this.icons_);
     }.bind(this), 5E3);
   }
 };
-AppController.prototype.loadUrlParams_ = function() {
+AppController.prototype.loadUrlParams_ = function () {
   var urlParams = queryStringToDictionary(window.location.search);
   this.loadingParams_.audioSendBitrate = urlParams["asbr"];
   this.loadingParams_.audioSendCodec = urlParams["asc"];
@@ -475,17 +477,17 @@ AppController.prototype.loadUrlParams_ = function() {
   this.loadingParams_.videoRecvBitrate = urlParams["vrbr"];
   this.loadingParams_.videoRecvCodec = urlParams["vrc"];
 };
-AppController.IconSet_ = function(iconSelector) {
+AppController.IconSet_ = function (iconSelector) {
   this.iconElement = document.querySelector(iconSelector);
 };
-AppController.IconSet_.prototype.toggle = function() {
+AppController.IconSet_.prototype.toggle = function () {
   if (this.iconElement.classList.contains("on")) {
     this.iconElement.classList.remove("on");
   } else {
     this.iconElement.classList.add("on");
   }
 };
-var Call = function(params) {
+var Call = function (params) {
   this.params_ = params;
   this.roomServer_ = params.roomServer || "";
   this.channel_ = new SignalingChannel(params.wssUrl, params.wssPostUrl);
@@ -507,32 +509,32 @@ var Call = function(params) {
   this.getTurnServersPromise_ = null;
   this.requestMediaAndTurnServers_();
 };
-Call.prototype.requestMediaAndTurnServers_ = function() {
+Call.prototype.requestMediaAndTurnServers_ = function () {
   this.getMediaPromise_ = this.maybeGetMedia_();
   this.getTurnServersPromise_ = this.maybeGetTurnServers_();
 };
-Call.prototype.isInitiator = function() {
+Call.prototype.isInitiator = function () {
   return this.params_.isInitiator;
 };
-Call.prototype.start = function(roomId) {
+Call.prototype.start = function (roomId) {
   this.connectToRoom_(roomId);
   if (this.params_.isLoopback) {
     setupLoopback(this.params_.wssUrl, roomId);
   }
 };
-Call.prototype.queueCleanupMessages_ = function() {
-  apprtc.windowPort.sendMessage({action:Constants.QUEUEADD_ACTION, queueMessage:{action:Constants.XHR_ACTION, method:"POST", url:this.getLeaveUrl_(), body:null}});
-  apprtc.windowPort.sendMessage({action:Constants.QUEUEADD_ACTION, queueMessage:{action:Constants.WS_ACTION, wsAction:Constants.WS_SEND_ACTION, data:JSON.stringify({cmd:"send", msg:JSON.stringify({type:"bye"})})}});
-  apprtc.windowPort.sendMessage({action:Constants.QUEUEADD_ACTION, queueMessage:{action:Constants.XHR_ACTION, method:"DELETE", url:this.channel_.getWssPostUrl(), body:null}});
+Call.prototype.queueCleanupMessages_ = function () {
+  apprtc.windowPort.sendMessage({ action: Constants.QUEUEADD_ACTION, queueMessage: { action: Constants.XHR_ACTION, method: "POST", url: this.getLeaveUrl_(), body: null } });
+  apprtc.windowPort.sendMessage({ action: Constants.QUEUEADD_ACTION, queueMessage: { action: Constants.WS_ACTION, wsAction: Constants.WS_SEND_ACTION, data: JSON.stringify({ cmd: "send", msg: JSON.stringify({ type: "bye" }) }) } });
+  apprtc.windowPort.sendMessage({ action: Constants.QUEUEADD_ACTION, queueMessage: { action: Constants.XHR_ACTION, method: "DELETE", url: this.channel_.getWssPostUrl(), body: null } });
 };
-Call.prototype.clearCleanupQueue_ = function() {
-  apprtc.windowPort.sendMessage({action:Constants.QUEUECLEAR_ACTION});
+Call.prototype.clearCleanupQueue_ = function () {
+  apprtc.windowPort.sendMessage({ action: Constants.QUEUECLEAR_ACTION });
 };
-Call.prototype.restart = function() {
+Call.prototype.restart = function () {
   this.requestMediaAndTurnServers_();
   this.start(this.params_.previousRoomId);
 };
-Call.prototype.hangup = function(async) {
+Call.prototype.hangup = function (async) {
   this.startTime = null;
   if (isChromeApp()) {
     this.clearCleanupQueue_();
@@ -549,39 +551,47 @@ Call.prototype.hangup = function(async) {
     this.pcClient_ = null;
   }
   var steps = [];
-  steps.push({step:function() {
-    var path = this.getLeaveUrl_();
-    return sendUrlRequest("POST", path, async);
-  }.bind(this), errorString:"Error sending /leave:"});
-  steps.push({step:function() {
-    this.channel_.send(JSON.stringify({type:"bye"}));
-  }.bind(this), errorString:"Error sending bye:"});
-  steps.push({step:function() {
-    return this.channel_.close(async);
-  }.bind(this), errorString:"Error closing signaling channel:"});
-  steps.push({step:function() {
-    this.params_.previousRoomId = this.params_.roomId;
-    this.params_.roomId = null;
-    this.params_.clientId = null;
-  }.bind(this), errorString:"Error setting params:"});
+  steps.push({
+    step: function () {
+      var path = this.getLeaveUrl_();
+      return sendUrlRequest("POST", path, async);
+    }.bind(this), errorString: "Error sending /leave:"
+  });
+  steps.push({
+    step: function () {
+      this.channel_.send(JSON.stringify({ type: "bye" }));
+    }.bind(this), errorString: "Error sending bye:"
+  });
+  steps.push({
+    step: function () {
+      return this.channel_.close(async);
+    }.bind(this), errorString: "Error closing signaling channel:"
+  });
+  steps.push({
+    step: function () {
+      this.params_.previousRoomId = this.params_.roomId;
+      this.params_.roomId = null;
+      this.params_.clientId = null;
+    }.bind(this), errorString: "Error setting params:"
+  });
   if (async) {
-    var errorHandler = function(errorString, error) {
+    var errorHandler = function (errorString, error) {
       console.log(errorString + " " + error.message);
     };
     var promise = Promise.resolve();
-    for (var i = 0;i < steps.length;++i) {
+    for (var i = 0; i < steps.length; ++i) {
       promise = promise.then(steps[i].step).catch(errorHandler.bind(this, steps[i].errorString));
     }
     return promise;
   } else {
-    var executeStep = function(executor, errorString) {
+    var executeStep = function (executor, errorString) {
       try {
         executor();
       } catch (ex) {
         console.log(errorString + " " + ex);
       }
     };
-    for (var j = 0;j < steps.length;++j) {
+    for (var j = 0; j < steps.length; ++j) {
       executeStep(steps[j].step, steps[j].errorString);
     }
     if (this.params_.roomId !== null || this.params_.clientId !== null) {
@@ -592,10 +602,10 @@ Call.prototype.hangup = function(async) {
     return Promise.resolve();
   }
 };
-Call.prototype.getLeaveUrl_ = function() {
+Call.prototype.getLeaveUrl_ = function () {
   return this.roomServer_ + "/leave/" + this.params_.roomId + "/" + this.params_.clientId;
 };
-Call.prototype.onRemoteHangup = function() {
+Call.prototype.onRemoteHangup = function () {
   this.startTime = null;
   this.params_.isInitiator = true;
   if (this.pcClient_) {
@@ -604,81 +614,81 @@ Call.prototype.onRemoteHangup = function() {
   }
   this.startSignaling_();
 };
-Call.prototype.getPeerConnectionStates = function() {
+Call.prototype.getPeerConnectionStates = function () {
   if (!this.pcClient_) {
     return null;
   }
   return this.pcClient_.getPeerConnectionStates();
 };
-Call.prototype.getPeerConnectionStats = function(callback) {
+Call.prototype.getPeerConnectionStats = function (callback) {
   if (!this.pcClient_) {
     return;
   }
   this.pcClient_.getPeerConnectionStats(callback);
 };
-Call.prototype.toggleVideoMute = function() {
+Call.prototype.toggleVideoMute = function () {
   var videoTracks = this.localStream_.getVideoTracks();
   if (videoTracks.length === 0) {
     console.log("No local video available.");
     return;
   }
   console.log("Toggling video mute state.");
-  for (var i = 0;i < videoTracks.length;++i) {
+  for (var i = 0; i < videoTracks.length; ++i) {
     videoTracks[i].enabled = !videoTracks[i].enabled;
   }
   console.log("Video " + (videoTracks[0].enabled ? "unmuted." : "muted."));
 };
-Call.prototype.toggleAudioMute = function() {
+Call.prototype.toggleAudioMute = function () {
   var audioTracks = this.localStream_.getAudioTracks();
   if (audioTracks.length === 0) {
     console.log("No local audio available.");
     return;
   }
   console.log("Toggling audio mute state.");
-  for (var i = 0;i < audioTracks.length;++i) {
+  for (var i = 0; i < audioTracks.length; ++i) {
     audioTracks[i].enabled = !audioTracks[i].enabled;
   }
   console.log("Audio " + (audioTracks[0].enabled ? "unmuted." : "muted."));
 };
-Call.prototype.connectToRoom_ = function(roomId) {
+Call.prototype.connectToRoom_ = function (roomId) {
   this.params_.roomId = roomId;
-  var channelPromise = this.channel_.open().catch(function(error) {
+  var channelPromise = this.channel_.open().catch(function (error) {
     this.onError_("WebSocket open error: " + error.message);
     return Promise.reject(error);
   }.bind(this));
-  var joinPromise = this.joinRoom_().then(function(roomParams) {
+  var joinPromise = this.joinRoom_().then(function (roomParams) {
     this.params_.clientId = roomParams.client_id;
     this.params_.roomId = roomParams.room_id;
     this.params_.roomLink = roomParams.room_link;
     this.params_.isInitiator = roomParams.is_initiator === "true";
     this.params_.messages = roomParams.messages;
-  }.bind(this)).catch(function(error) {
+  }.bind(this)).catch(function (error) {
     this.onError_("Room server join error: " + error.message);
     return Promise.reject(error);
   }.bind(this));
-  Promise.all([channelPromise, joinPromise]).then(function() {
+  Promise.all([channelPromise, joinPromise]).then(function () {
     this.channel_.register(this.params_.roomId, this.params_.clientId);
-    Promise.all([this.getTurnServersPromise_, this.getMediaPromise_]).then(function() {
+    Promise.all([this.getTurnServersPromise_, this.getMediaPromise_]).then(function () {
       this.startSignaling_();
       if (isChromeApp()) {
         this.queueCleanupMessages_();
       }
-    }.bind(this)).catch(function(error) {
+    }.bind(this)).catch(function (error) {
       this.onError_("Failed to start signaling: " + error.message);
     }.bind(this));
-  }.bind(this)).catch(function(error) {
+  }.bind(this)).catch(function (error) {
     this.onError_("WebSocket register error: " + error.message);
   }.bind(this));
 };
-Call.prototype.maybeGetMedia_ = function() {
+Call.prototype.maybeGetMedia_ = function () {
   var needStream = this.params_.mediaConstraints.audio !== false || this.params_.mediaConstraints.video !== false;
   var mediaPromise = null;
   if (needStream) {
     var mediaConstraints = this.params_.mediaConstraints;
-    mediaPromise = requestUserMedia(mediaConstraints).then(function(stream) {
+    mediaPromise = requestUserMedia(mediaConstraints).then(function (stream) {
       console.log("Got access to local media with mediaConstraints:\n" + "  '" + JSON.stringify(mediaConstraints) + "'");
       this.onUserMediaSuccess_(stream);
-    }.bind(this)).catch(function(error) {
+    }.bind(this)).catch(function (error) {
       this.onError_("Error getting user media: " + error.message);
       this.onUserMediaError_(error);
     }.bind(this));
@@ -687,15 +697,15 @@ Call.prototype.maybeGetMedia_ = function() {
   }
   return mediaPromise;
 };
-Call.prototype.maybeGetTurnServers_ = function() {
+Call.prototype.maybeGetTurnServers_ = function () {
   var shouldRequestTurnServers = this.params_.turnRequestUrl && this.params_.turnRequestUrl.length > 0;
   var turnPromise = null;
   if (shouldRequestTurnServers) {
     var requestUrl = this.params_.turnRequestUrl;
-    turnPromise = requestTurnServers(requestUrl, this.params_.turnTransports).then(function(turnServers) {
+    turnPromise = requestTurnServers(requestUrl, this.params_.turnTransports).then(function (turnServers) {
       var iceServers = this.params_.peerConnectionConfig.iceServers;
       this.params_.peerConnectionConfig.iceServers = iceServers.concat(turnServers);
-    }.bind(this)).catch(function(error) {
+    }.bind(this)).catch(function (error) {
       if (this.onstatusmessage) {
         var subject = encodeURIComponent("AppRTC demo TURN server not working");
         this.onstatusmessage("No TURN server; unlikely that media will traverse networks. " + "If this persists please " + '<a href="mailto:discuss-webrtc@googlegroups.com?' + "subject=" + subject + '">' + "report it to discuss-webrtc@googlegroups.com</a>.");
@@ -707,18 +717,18 @@ Call.prototype.maybeGetTurnServers_ = function() {
   }
   return turnPromise;
 };
-Call.prototype.onUserMediaSuccess_ = function(stream) {
+Call.prototype.onUserMediaSuccess_ = function (stream) {
   this.localStream_ = stream;
   if (this.onlocalstreamadded) {
     this.onlocalstreamadded(stream);
   }
 };
-Call.prototype.onUserMediaError_ = function(error) {
+Call.prototype.onUserMediaError_ = function (error) {
   var errorMessage = "Failed to get access to local media. Error name was " + error.name + ". Continuing without sending a stream.";
   this.onError_("getUserMedia error: " + errorMessage);
   alert(errorMessage);
 };
-Call.prototype.maybeCreatePcClient_ = function() {
+Call.prototype.maybeCreatePcClient_ = function () {
   if (this.pcClient_) {
     return;
   }
@@ -739,7 +749,7 @@ Call.prototype.maybeCreatePcClient_ = function() {
     return;
   }
 };
-Call.prototype.startSignaling_ = function() {
+Call.prototype.startSignaling_ = function () {
   console.log("Starting signaling.");
   if (this.isInitiator() && this.oncallerstarted) {
     this.oncallerstarted(this.params_.roomId, this.params_.roomLink);
@@ -756,13 +766,13 @@ Call.prototype.startSignaling_ = function() {
     this.pcClient_.startAsCallee(this.params_.messages);
   }
 };
-Call.prototype.joinRoom_ = function() {
-  return new Promise(function(resolve, reject) {
+Call.prototype.joinRoom_ = function () {
+  return new Promise(function (resolve, reject) {
     if (!this.params_.roomId) {
       reject(Error("Missing room id."));
     }
     var path = this.roomServer_ + "/join/" + this.params_.roomId + window.location.search;
-    sendAsyncUrlRequest("POST", path).then(function(response) {
+    sendAsyncUrlRequest("POST", path).then(function (response) {
       var responseObj = parseJSON(response);
       if (!responseObj) {
         reject(Error("Error parsing response JSON."));
@@ -774,17 +784,17 @@ Call.prototype.joinRoom_ = function() {
       }
       console.log("Joined the room.");
       resolve(responseObj.params);
-    }.bind(this)).catch(function(error) {
+    }.bind(this)).catch(function (error) {
       reject(Error("Failed to join the room: " + error.message));
       return;
     }.bind(this));
   }.bind(this));
 };
-Call.prototype.onRecvSignalingChannelMessage_ = function(msg) {
+Call.prototype.onRecvSignalingChannelMessage_ = function (msg) {
   this.maybeCreatePcClient_();
   this.pcClient_.receiveSignalingMessage(msg);
 };
-Call.prototype.sendSignalingMessage_ = function(message) {
+Call.prototype.sendSignalingMessage_ = function (message) {
   var msgString = JSON.stringify(message);
   if (this.params_.isInitiator) {
     var path = this.roomServer_ + "/message/" + this.params_.roomId + "/" + this.params_.clientId + window.location.search;
@@ -796,13 +806,13 @@ Call.prototype.sendSignalingMessage_ = function(message) {
     this.channel_.send(msgString);
   }
 };
-Call.prototype.onError_ = function(message) {
+Call.prototype.onError_ = function (message) {
   if (this.onerror) {
     this.onerror(message);
   }
 };
-var Constants = {WS_ACTION:"ws", XHR_ACTION:"xhr", QUEUEADD_ACTION:"addToQueue", QUEUECLEAR_ACTION:"clearQueue", EVENT_ACTION:"event", WS_CREATE_ACTION:"create", WS_EVENT_ONERROR:"onerror", WS_EVENT_ONMESSAGE:"onmessage", WS_EVENT_ONOPEN:"onopen", WS_EVENT_ONCLOSE:"onclose", WS_EVENT_SENDERROR:"onsenderror", WS_SEND_ACTION:"send", WS_CLOSE_ACTION:"close"};
-var InfoBox = function(infoDiv, remoteVideo, call, versionInfo) {
+var Constants = { WS_ACTION: "ws", XHR_ACTION: "xhr", QUEUEADD_ACTION: "addToQueue", QUEUECLEAR_ACTION: "clearQueue", EVENT_ACTION: "event", WS_CREATE_ACTION: "create", WS_EVENT_ONERROR: "onerror", WS_EVENT_ONMESSAGE: "onmessage", WS_EVENT_ONOPEN: "onopen", WS_EVENT_ONCLOSE: "onclose", WS_EVENT_SENDERROR: "onsenderror", WS_SEND_ACTION: "send", WS_CLOSE_ACTION: "close" };
+var InfoBox = function (infoDiv, remoteVideo, call, versionInfo) {
   this.infoDiv_ = infoDiv;
   this.remoteVideo_ = remoteVideo;
   this.call_ = call;
@@ -813,9 +823,9 @@ var InfoBox = function(infoDiv, remoteVideo, call, versionInfo) {
   this.stats_ = null;
   this.prevStats_ = null;
   this.getStatsTimer_ = null;
-  this.iceCandidateTypes_ = {Local:{}, Remote:{}};
+  this.iceCandidateTypes_ = { Local: {}, Remote: {} };
 };
-InfoBox.prototype.recordIceCandidateTypes = function(location, candidate) {
+InfoBox.prototype.recordIceCandidateTypes = function (location, candidate) {
   var type = iceCandidateType(candidate);
   var types = this.iceCandidateTypes_[location];
   if (!types[type]) {
@@ -825,21 +835,21 @@ InfoBox.prototype.recordIceCandidateTypes = function(location, candidate) {
   }
   this.updateInfoDiv();
 };
-InfoBox.prototype.pushErrorMessage = function(msg) {
+InfoBox.prototype.pushErrorMessage = function (msg) {
   this.errorMessages_.push(msg);
   this.updateInfoDiv();
   this.showInfoDiv();
 };
-InfoBox.prototype.setSetupTimes = function(startTime, connectTime) {
+InfoBox.prototype.setSetupTimes = function (startTime, connectTime) {
   this.startTime_ = startTime;
   this.connectTime_ = connectTime;
 };
-InfoBox.prototype.showInfoDiv = function() {
+InfoBox.prototype.showInfoDiv = function () {
   this.getStatsTimer_ = setInterval(this.refreshStats_.bind(this), 1E3);
   this.refreshStats_();
   this.infoDiv_.classList.add("active");
 };
-InfoBox.prototype.toggleInfoDiv = function() {
+InfoBox.prototype.toggleInfoDiv = function () {
   if (this.infoDiv_.classList.contains("active")) {
     clearInterval(this.getStatsTimer_);
     this.infoDiv_.classList.remove("active");
@@ -847,14 +857,14 @@ InfoBox.prototype.toggleInfoDiv = function() {
     this.showInfoDiv();
   }
 };
-InfoBox.prototype.refreshStats_ = function() {
-  this.call_.getPeerConnectionStats(function(response) {
+InfoBox.prototype.refreshStats_ = function () {
+  this.call_.getPeerConnectionStats(function (response) {
     this.prevStats_ = this.stats_;
     this.stats_ = response.result();
     this.updateInfoDiv();
   }.bind(this));
 };
-InfoBox.prototype.updateInfoDiv = function() {
+InfoBox.prototype.updateInfoDiv = function () {
   var contents = '<pre id="info-box-stats" style="line-height: initial">';
   if (this.stats_) {
     var states = this.call_.getPeerConnectionStates();
@@ -892,7 +902,7 @@ InfoBox.prototype.updateInfoDiv = function() {
   }
   if (this.errorMessages_.length) {
     this.infoDiv_.classList.add("warning");
-    for (var i = 0;i !== this.errorMessages_.length;++i) {
+    for (var i = 0; i !== this.errorMessages_.length; ++i) {
       contents += this.errorMessages_[i] + "\n";
     }
   } else {
@@ -910,7 +920,7 @@ InfoBox.prototype.updateInfoDiv = function() {
     this.infoDiv_.innerHTML = contents;
   }
 };
-InfoBox.prototype.buildStatsSection_ = function() {
+InfoBox.prototype.buildStatsSection_ = function () {
   var contents = this.buildLine_("Stats");
   var rtt = extractStatAsInt(this.stats_, "ssrc", "googRtt");
   var captureStart = extractStatAsInt(this.stats_, "ssrc", "googCaptureStartNtpTimeMs");
@@ -979,7 +989,7 @@ InfoBox.prototype.buildStatsSection_ = function() {
   }
   return contents;
 };
-InfoBox.prototype.buildLine_ = function(label, value) {
+InfoBox.prototype.buildLine_ = function (label, value) {
   var columnWidth = 12;
   var line = "";
   if (label) {
@@ -994,13 +1004,13 @@ InfoBox.prototype.buildLine_ = function(label, value) {
   line += "\n";
   return line;
 };
-InfoBox.formatInterval_ = function(value) {
+InfoBox.formatInterval_ = function (value) {
   var result = "";
   var seconds = Math.floor(value / 1E3);
   var minutes = Math.floor(seconds / 60);
   var hours = Math.floor(minutes / 60);
-  var formatTwoDigit = function(twodigit) {
-    return(twodigit < 10 ? "0" : "") + twodigit.toString();
+  var formatTwoDigit = function (twodigit) {
+    return (twodigit < 10 ? "0" : "") + twodigit.toString();
   };
   if (hours > 0) {
     result += formatTwoDigit(hours) + ":";
@@ -1009,10 +1019,10 @@ InfoBox.formatInterval_ = function(value) {
   result += formatTwoDigit(seconds - minutes * 60);
   return result;
 };
-InfoBox.formatMsec_ = function(value) {
+InfoBox.formatMsec_ = function (value) {
   return value.toFixed(0).toString() + " ms";
 };
-InfoBox.formatBitrate_ = function(value) {
+InfoBox.formatBitrate_ = function (value) {
   if (!value) {
     return "- bps";
   }
@@ -1031,13 +1041,13 @@ InfoBox.formatBitrate_ = function(value) {
   var str = value.toPrecision(3) + " " + suffix;
   return str;
 };
-InfoBox.formatPacketRate_ = function(value) {
+InfoBox.formatPacketRate_ = function (value) {
   if (!value) {
     return "- pps";
   }
   return value.toPrecision(3) + " " + "pps";
 };
-var PeerConnectionClient = function(params, startTime) {
+var PeerConnectionClient = function (params, startTime) {
   this.params_ = params;
   this.startTime_ = startTime;
   console.log("Creating RTCPeerConnnection with:\n" + "  config: '" + JSON.stringify(params.peerConnectionConfig) + "';\n" + "  constraints: '" + JSON.stringify(params.peerConnectionConstraints) + "'.");
@@ -1060,14 +1070,14 @@ var PeerConnectionClient = function(params, startTime) {
   this.onsignalingmessage = null;
   this.onsignalingstatechange = null;
 };
-PeerConnectionClient.DEFAULT_SDP_CONSTRAINTS_ = {"mandatory":{"OfferToReceiveAudio":true, "OfferToReceiveVideo":true}, "optional":[{"VoiceActivityDetection":false}]};
-PeerConnectionClient.prototype.addStream = function(stream) {
+PeerConnectionClient.DEFAULT_SDP_CONSTRAINTS_ = { "mandatory": { "OfferToReceiveAudio": true, "OfferToReceiveVideo": true }, "optional": [{ "VoiceActivityDetection": false }] };
+PeerConnectionClient.prototype.addStream = function (stream) {
   if (!this.pc_) {
     return;
   }
   this.pc_.addStream(stream);
 };
-PeerConnectionClient.prototype.startAsCaller = function(offerConstraints) {
+PeerConnectionClient.prototype.startAsCaller = function (offerConstraints) {
   if (!this.pc_) {
     return false;
   }
@@ -1081,7 +1091,7 @@ PeerConnectionClient.prototype.startAsCaller = function(offerConstraints) {
   this.pc_.createOffer(this.setLocalSdpAndNotify_.bind(this), this.onError_.bind(this, "createOffer"), constraints);
   return true;
 };
-PeerConnectionClient.prototype.startAsCallee = function(initialMessages) {
+PeerConnectionClient.prototype.startAsCallee = function (initialMessages) {
   if (!this.pc_) {
     return false;
   }
@@ -1091,7 +1101,7 @@ PeerConnectionClient.prototype.startAsCallee = function(initialMessages) {
   this.isInitiator_ = false;
   this.started_ = true;
   if (initialMessages && initialMessages.length > 0) {
-    for (var i = 0, len = initialMessages.length;i < len;i++) {
+    for (var i = 0, len = initialMessages.length; i < len; i++) {
       this.receiveSignalingMessage(initialMessages[i]);
     }
     return true;
@@ -1101,7 +1111,7 @@ PeerConnectionClient.prototype.startAsCallee = function(initialMessages) {
   }
   return true;
 };
-PeerConnectionClient.prototype.receiveSignalingMessage = function(message) {
+PeerConnectionClient.prototype.receiveSignalingMessage = function (message) {
   var messageObj = parseJSON(message);
   if (!messageObj) {
     return;
@@ -1122,30 +1132,30 @@ PeerConnectionClient.prototype.receiveSignalingMessage = function(message) {
   }
   this.drainMessageQueue_();
 };
-PeerConnectionClient.prototype.close = function() {
+PeerConnectionClient.prototype.close = function () {
   if (!this.pc_) {
     return;
   }
   this.pc_.close();
   this.pc_ = null;
 };
-PeerConnectionClient.prototype.getPeerConnectionStates = function() {
+PeerConnectionClient.prototype.getPeerConnectionStates = function () {
   if (!this.pc_) {
     return null;
   }
-  return{"signalingState":this.pc_.signalingState, "iceGatheringState":this.pc_.iceGatheringState, "iceConnectionState":this.pc_.iceConnectionState};
+  return { "signalingState": this.pc_.signalingState, "iceGatheringState": this.pc_.iceGatheringState, "iceConnectionState": this.pc_.iceConnectionState };
 };
-PeerConnectionClient.prototype.getPeerConnectionStats = function(callback) {
+PeerConnectionClient.prototype.getPeerConnectionStats = function (callback) {
   if (!this.pc_) {
     return;
   }
   this.pc_.getStats(callback);
 };
-PeerConnectionClient.prototype.doAnswer_ = function() {
+PeerConnectionClient.prototype.doAnswer_ = function () {
   console.log("Sending answer to peer.");
   this.pc_.createAnswer(this.setLocalSdpAndNotify_.bind(this), this.onError_.bind(this, "createAnswer"), PeerConnectionClient.DEFAULT_SDP_CONSTRAINTS_);
 };
-PeerConnectionClient.prototype.setLocalSdpAndNotify_ = function(sessionDescription) {
+PeerConnectionClient.prototype.setLocalSdpAndNotify_ = function (sessionDescription) {
   sessionDescription.sdp = maybePreferAudioReceiveCodec(sessionDescription.sdp, this.params_);
   sessionDescription.sdp = maybePreferVideoReceiveCodec(sessionDescription.sdp, this.params_);
   sessionDescription.sdp = maybeSetAudioReceiveBitRate(sessionDescription.sdp, this.params_);
@@ -1155,7 +1165,7 @@ PeerConnectionClient.prototype.setLocalSdpAndNotify_ = function(sessionDescripti
     this.onsignalingmessage(sessionDescription);
   }
 };
-PeerConnectionClient.prototype.setRemoteSdp_ = function(message) {
+PeerConnectionClient.prototype.setRemoteSdp_ = function (message) {
   message.sdp = maybeSetOpusOptions(message.sdp, this.params_);
   message.sdp = maybePreferAudioSendCodec(message.sdp, this.params_);
   message.sdp = maybePreferVideoSendCodec(message.sdp, this.params_);
@@ -1164,14 +1174,14 @@ PeerConnectionClient.prototype.setRemoteSdp_ = function(message) {
   message.sdp = maybeSetVideoSendInitialBitRate(message.sdp, this.params_);
   this.pc_.setRemoteDescription(new RTCSessionDescription(message), this.onSetRemoteDescriptionSuccess_.bind(this), this.onError_.bind(this, "setRemoteDescription"));
 };
-PeerConnectionClient.prototype.onSetRemoteDescriptionSuccess_ = function() {
+PeerConnectionClient.prototype.onSetRemoteDescriptionSuccess_ = function () {
   console.log("Set remote session description success.");
   var remoteStreams = this.pc_.getRemoteStreams();
   if (this.onremotesdpset) {
     this.onremotesdpset(remoteStreams.length > 0 && remoteStreams[0].getVideoTracks().length > 0);
   }
 };
-PeerConnectionClient.prototype.processSignalingMessage_ = function(message) {
+PeerConnectionClient.prototype.processSignalingMessage_ = function (message) {
   if (message.type === "offer" && !this.isInitiator_) {
     if (this.pc_.signalingState !== "stable") {
       console.log("ERROR: remote offer received in unexpected state: " + this.pc_.signalingState);
@@ -1188,7 +1198,7 @@ PeerConnectionClient.prototype.processSignalingMessage_ = function(message) {
       this.setRemoteSdp_(message);
     } else {
       if (message.type === "candidate") {
-        var candidate = new RTCIceCandidate({sdpMLineIndex:message.label, candidate:message.candidate});
+        var candidate = new RTCIceCandidate({ sdpMLineIndex: message.label, candidate: message.candidate });
         this.recordIceCandidate_("Remote", candidate);
         this.pc_.addIceCandidate(candidate, trace.bind(null, "Remote candidate added successfully."), this.onError_.bind(this, "addIceCandidate"));
       } else {
@@ -1197,19 +1207,19 @@ PeerConnectionClient.prototype.processSignalingMessage_ = function(message) {
     }
   }
 };
-PeerConnectionClient.prototype.drainMessageQueue_ = function() {
+PeerConnectionClient.prototype.drainMessageQueue_ = function () {
   if (!this.pc_ || !this.started_ || !this.hasRemoteSdp_) {
     return;
   }
-  for (var i = 0, len = this.messageQueue_.length;i < len;i++) {
+  for (var i = 0, len = this.messageQueue_.length; i < len; i++) {
     this.processSignalingMessage_(this.messageQueue_[i]);
   }
   this.messageQueue_ = [];
 };
-PeerConnectionClient.prototype.onIceCandidate_ = function(event) {
+PeerConnectionClient.prototype.onIceCandidate_ = function (event) {
   if (event.candidate) {
     if (this.filterIceCandidate_(event.candidate)) {
-      var message = {type:"candidate", label:event.candidate.sdpMLineIndex, id:event.candidate.sdpMid, candidate:event.candidate.candidate};
+      var message = { type: "candidate", label: event.candidate.sdpMLineIndex, id: event.candidate.sdpMid, candidate: event.candidate.candidate };
       if (this.onsignalingmessage) {
         this.onsignalingmessage(message);
       }
@@ -1219,7 +1229,7 @@ PeerConnectionClient.prototype.onIceCandidate_ = function(event) {
     console.log("End of candidates.");
   }
 };
-PeerConnectionClient.prototype.onSignalingStateChanged_ = function() {
+PeerConnectionClient.prototype.onSignalingStateChanged_ = function () {
   if (!this.pc_) {
     return;
   }
@@ -1228,7 +1238,7 @@ PeerConnectionClient.prototype.onSignalingStateChanged_ = function() {
     this.onsignalingstatechange();
   }
 };
-PeerConnectionClient.prototype.onIceConnectionStateChanged_ = function() {
+PeerConnectionClient.prototype.onIceConnectionStateChanged_ = function () {
   if (!this.pc_) {
     return;
   }
@@ -1240,7 +1250,7 @@ PeerConnectionClient.prototype.onIceConnectionStateChanged_ = function() {
     this.oniceconnectionstatechange();
   }
 };
-PeerConnectionClient.prototype.filterIceCandidate_ = function(candidateObj) {
+PeerConnectionClient.prototype.filterIceCandidate_ = function (candidateObj) {
   var candidateStr = candidateObj.candidate;
   if (candidateStr.indexOf("tcp") !== -1) {
     return false;
@@ -1250,22 +1260,22 @@ PeerConnectionClient.prototype.filterIceCandidate_ = function(candidateObj) {
   }
   return true;
 };
-PeerConnectionClient.prototype.recordIceCandidate_ = function(location, candidateObj) {
+PeerConnectionClient.prototype.recordIceCandidate_ = function (location, candidateObj) {
   if (this.onnewicecandidate) {
     this.onnewicecandidate(location, candidateObj.candidate);
   }
 };
-PeerConnectionClient.prototype.onRemoteStreamAdded_ = function(event) {
+PeerConnectionClient.prototype.onRemoteStreamAdded_ = function (event) {
   if (this.onremotestreamadded) {
     this.onremotestreamadded(event.stream);
   }
 };
-PeerConnectionClient.prototype.onError_ = function(tag, error) {
+PeerConnectionClient.prototype.onError_ = function (tag, error) {
   if (this.onerror) {
     this.onerror(tag + ": " + error.toString());
   }
 };
-var RoomSelection = function(roomSelectionDiv, uiConstants, recentRoomsKey, setupCompletedCallback) {
+var RoomSelection = function (roomSelectionDiv, uiConstants, recentRoomsKey, setupCompletedCallback) {
   this.roomSelectionDiv_ = roomSelectionDiv;
   this.setupCompletedCallback_ = setupCompletedCallback;
   this.roomIdInput_ = this.roomSelectionDiv_.querySelector(uiConstants.roomSelectionInput);
@@ -1275,34 +1285,34 @@ var RoomSelection = function(roomSelectionDiv, uiConstants, recentRoomsKey, setu
   this.roomRecentList_ = this.roomSelectionDiv_.querySelector(uiConstants.roomSelectionRecentList);
   this.roomIdInput_.value = randomString(9);
   this.onRoomIdInput_();
-  this.roomIdInput_.addEventListener("input", this.onRoomIdInput_.bind(this), false);
-  this.roomIdInput_.addEventListener("keyup", this.onRoomIdKeyPress_.bind(this), false);
-  this.roomRandomButton_.addEventListener("click", this.onRandomButton_.bind(this), false);
-  this.roomJoinButton_.addEventListener("click", this.onJoinButton_.bind(this), false);
+  // this.roomIdInput_.addEventListener("input", this.onRoomIdInput_.bind(this), false);
+  // this.roomIdInput_.addEventListener("keyup", this.onRoomIdKeyPress_.bind(this), false);
+  // this.roomRandomButton_.addEventListener("click", this.onRandomButton_.bind(this), false);
+  // this.roomJoinButton_.addEventListener("click", this.onJoinButton_.bind(this), false);
   this.onRoomSelected = null;
   this.recentlyUsedList_ = new RoomSelection.RecentlyUsedList(recentRoomsKey);
   this.startBuildingRecentRoomList_();
 };
-RoomSelection.matchRandomRoomPattern = function(input) {
+RoomSelection.matchRandomRoomPattern = function (input) {
   return input.match(/^\d{9}$/) !== null;
 };
-RoomSelection.prototype.startBuildingRecentRoomList_ = function() {
-  this.recentlyUsedList_.getRecentRooms().then(function(recentRooms) {
-    this.buildRecentRoomList_(recentRooms);
+RoomSelection.prototype.startBuildingRecentRoomList_ = function () {
+  this.recentlyUsedList_.getRecentRooms().then(function (recentRooms) {
+    // this.buildRecentRoomList_(recentRooms);
     if (this.setupCompletedCallback_) {
       this.setupCompletedCallback_();
     }
-  }.bind(this)).catch(function(error) {
+  }.bind(this)).catch(function (error) {
     console.log("Error building recent rooms list: " + error.message);
   }.bind(this));
 };
-RoomSelection.prototype.buildRecentRoomList_ = function(recentRooms) {
+RoomSelection.prototype.buildRecentRoomList_ = function (recentRooms) {
   var lastChild = this.roomRecentList_.lastChild;
   while (lastChild) {
     this.roomRecentList_.removeChild(lastChild);
     lastChild = this.roomRecentList_.lastChild;
   }
-  for (var i = 0;i < recentRooms.length;++i) {
+  for (var i = 0; i < recentRooms.length; ++i) {
     var li = document.createElement("li");
     var href = document.createElement("a");
     var linkText = document.createTextNode(recentRooms[i]);
@@ -1313,74 +1323,72 @@ RoomSelection.prototype.buildRecentRoomList_ = function(recentRooms) {
     href.addEventListener("click", this.makeRecentlyUsedClickHandler_(recentRooms[i]).bind(this), false);
   }
 };
-RoomSelection.prototype.onRoomIdInput_ = function() {
+RoomSelection.prototype.onRoomIdInput_ = function () {
   var room = this.roomIdInput_.value;
   var valid = room.length >= 5;
   var re = /^\w+$/;
   valid = valid && re.exec(room);
-  if (valid) {
-    this.roomJoinButton_.disabled = false;
-    this.roomIdInput_.classList.remove("invalid");
-    this.roomIdInputLabel_.classList.add("hidden");
-  } else {
-    this.roomJoinButton_.disabled = true;
-    this.roomIdInput_.classList.add("invalid");
-    this.roomIdInputLabel_.classList.remove("hidden");
-  }
+  // if (valid) {
+  //   this.roomIdInput_.classList.remove("invalid");
+  //   this.roomIdInputLabel_.classList.add("hidden");
+  // } else {
+  //   this.roomIdInput_.classList.add("invalid");
+  //   this.roomIdInputLabel_.classList.remove("hidden");
+  // }
 };
-RoomSelection.prototype.onRoomIdKeyPress_ = function(event) {
-  if (event.which !== 13 || this.roomJoinButton_.disabled) {
+RoomSelection.prototype.onRoomIdKeyPress_ = function (event) {
+  if (event.which !== 13) {
     return;
   }
   this.onJoinButton_();
 };
-RoomSelection.prototype.onRandomButton_ = function() {
+RoomSelection.prototype.onRandomButton_ = function () {
   this.roomIdInput_.value = randomString(9);
   this.onRoomIdInput_();
 };
-RoomSelection.prototype.onJoinButton_ = function() {
+RoomSelection.prototype.onJoinButton_ = function () {
   this.loadRoom_(this.roomIdInput_.value);
 };
-RoomSelection.prototype.makeRecentlyUsedClickHandler_ = function(roomName) {
-  return function(e) {
+RoomSelection.prototype.makeRecentlyUsedClickHandler_ = function (roomName) {
+  return function (e) {
     e.preventDefault();
     this.loadRoom_(roomName);
   };
 };
-RoomSelection.prototype.loadRoom_ = function(roomName) {
+RoomSelection.prototype.loadRoom_ = function (roomName) {
   this.recentlyUsedList_.pushRecentRoom(roomName);
   if (this.onRoomSelected) {
     this.onRoomSelected(roomName);
   }
 };
-RoomSelection.RecentlyUsedList = function(key) {
+RoomSelection.RecentlyUsedList = function (key) {
   this.LISTLENGTH_ = 10;
   this.RECENTROOMSKEY_ = key || "recentRooms";
   this.storage_ = new Storage;
 };
-RoomSelection.RecentlyUsedList.prototype.pushRecentRoom = function(roomId) {
-  return new Promise(function(resolve, reject) {
+RoomSelection.RecentlyUsedList.prototype.pushRecentRoom = function (roomId) {
+  return new Promise(function (resolve, reject) {
     if (!roomId) {
       resolve();
       return;
     }
-    this.getRecentRooms().then(function(recentRooms) {
+    this.getRecentRooms().then(function (recentRooms) {
       recentRooms = [roomId].concat(recentRooms);
-      recentRooms = recentRooms.filter(function(value, index, self) {
+      recentRooms = recentRooms.filter(function (value, index, self) {
         return self.indexOf(value) === index;
       });
       recentRooms = recentRooms.slice(0, this.LISTLENGTH_);
-      this.storage_.setStorage(this.RECENTROOMSKEY_, JSON.stringify(recentRooms), function() {
+      this.storage_.setStorage(this.RECENTROOMSKEY_, JSON.stringify(recentRooms), function () {
         resolve();
       });
-    }.bind(this)).catch(function(err) {
+    }.bind(this)).catch(function (err) {
       reject(err);
     }.bind(this));
   }.bind(this));
 };
-RoomSelection.RecentlyUsedList.prototype.getRecentRooms = function() {
-  return new Promise(function(resolve) {
-    this.storage_.getStorage(this.RECENTROOMSKEY_, function(value) {
+RoomSelection.RecentlyUsedList.prototype.getRecentRooms = function () {
+  return new Promise(function (resolve) {
+    this.storage_.getStorage(this.RECENTROOMSKEY_, function (value) {
       var recentRooms = parseJSON(value);
       if (!recentRooms) {
         recentRooms = [];
@@ -1389,29 +1397,29 @@ RoomSelection.RecentlyUsedList.prototype.getRecentRooms = function() {
     });
   }.bind(this));
 };
-var RemoteWebSocket = function(wssUrl, wssPostUrl) {
+var RemoteWebSocket = function (wssUrl, wssPostUrl) {
   this.wssUrl_ = wssUrl;
   apprtc.windowPort.addMessageListener(this.handleMessage_.bind(this));
-  this.sendMessage_({action:Constants.WS_ACTION, wsAction:Constants.WS_CREATE_ACTION, wssUrl:wssUrl, wssPostUrl:wssPostUrl});
+  this.sendMessage_({ action: Constants.WS_ACTION, wsAction: Constants.WS_CREATE_ACTION, wssUrl: wssUrl, wssPostUrl: wssPostUrl });
   this.readyState = WebSocket.CONNECTING;
 };
-RemoteWebSocket.prototype.sendMessage_ = function(message) {
+RemoteWebSocket.prototype.sendMessage_ = function (message) {
   apprtc.windowPort.sendMessage(message);
 };
-RemoteWebSocket.prototype.send = function(data) {
+RemoteWebSocket.prototype.send = function (data) {
   if (this.readyState !== WebSocket.OPEN) {
     throw "Web socket is not in OPEN state: " + this.readyState;
   }
-  this.sendMessage_({action:Constants.WS_ACTION, wsAction:Constants.WS_SEND_ACTION, data:data});
+  this.sendMessage_({ action: Constants.WS_ACTION, wsAction: Constants.WS_SEND_ACTION, data: data });
 };
-RemoteWebSocket.prototype.close = function() {
+RemoteWebSocket.prototype.close = function () {
   if (this.readyState === WebSocket.CLOSING || this.readyState === WebSocket.CLOSED) {
     return;
   }
   this.readyState = WebSocket.CLOSING;
-  this.sendMessage_({action:Constants.WS_ACTION, wsAction:Constants.WS_CLOSE_ACTION});
+  this.sendMessage_({ action: Constants.WS_ACTION, wsAction: Constants.WS_CLOSE_ACTION });
 };
-RemoteWebSocket.prototype.handleMessage_ = function(message) {
+RemoteWebSocket.prototype.handleMessage_ = function (message) {
   if (message.action === Constants.WS_ACTION && message.wsAction === Constants.EVENT_ACTION) {
     if (message.wsEvent === Constants.WS_EVENT_ONOPEN) {
       this.readyState = WebSocket.OPEN;
@@ -1641,7 +1649,7 @@ function parseFmtpLine(fmtpLine) {
     return null;
   }
   var params = {};
-  for (var i = 0;i < keyValues.length;++i) {
+  for (var i = 0; i < keyValues.length; ++i) {
     var pair = keyValues[i].split("=");
     if (pair.length === 2) {
       params[pair[0]] = pair[1];
@@ -1676,7 +1684,7 @@ function findLine(sdpLines, prefix, substr) {
 }
 function findLineInRange(sdpLines, startLine, endLine, prefix, substr) {
   var realEndLine = endLine !== -1 ? endLine : sdpLines.length;
-  for (var i = startLine;i < realEndLine;++i) {
+  for (var i = startLine; i < realEndLine; ++i) {
     if (sdpLines[i].indexOf(prefix) === 0) {
       if (!substr || sdpLines[i].toLowerCase().indexOf(substr.toLowerCase()) !== -1) {
         return i;
@@ -1698,14 +1706,14 @@ function setDefaultCodec(mLine, payload) {
   var elements = mLine.split(" ");
   var newLine = elements.slice(0, 3);
   newLine.push(payload);
-  for (var i = 3;i < elements.length;i++) {
+  for (var i = 3; i < elements.length; i++) {
     if (elements[i] !== payload) {
       newLine.push(elements[i]);
     }
   }
   return newLine.join(" ");
 }
-;var SignalingChannel = function(wssUrl, wssPostUrl) {
+; var SignalingChannel = function (wssUrl, wssPostUrl) {
   this.wssUrl_ = wssUrl;
   this.wssPostUrl_ = wssPostUrl;
   this.roomId_ = null;
@@ -1715,24 +1723,24 @@ function setDefaultCodec(mLine, payload) {
   this.onerror = null;
   this.onmessage = null;
 };
-SignalingChannel.prototype.open = function() {
+SignalingChannel.prototype.open = function () {
   if (this.websocket_) {
     console.log("ERROR: SignalingChannel has already opened.");
     return;
   }
   console.log("Opening signaling channel.");
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     if (isChromeApp()) {
       this.websocket_ = new RemoteWebSocket(this.wssUrl_, this.wssPostUrl_);
     } else {
       this.websocket_ = new WebSocket(this.wssUrl_);
     }
-    this.websocket_.onopen = function() {
+    this.websocket_.onopen = function () {
       console.log("Signaling channel opened.");
-      this.websocket_.onerror = function() {
+      this.websocket_.onerror = function () {
         console.log("Signaling channel error.");
       };
-      this.websocket_.onclose = function(event) {
+      this.websocket_.onclose = function (event) {
         console.log("Channel closed with code:" + event.code + " reason:" + event.reason);
         this.websocket_ = null;
         this.registered_ = false;
@@ -1742,7 +1750,7 @@ SignalingChannel.prototype.open = function() {
       }
       resolve();
     }.bind(this);
-    this.websocket_.onmessage = function(event) {
+    this.websocket_.onmessage = function (event) {
       console.log("WSS->C: " + event.data);
       var message = parseJSON(event.data);
       if (!message) {
@@ -1755,12 +1763,12 @@ SignalingChannel.prototype.open = function() {
       }
       this.onmessage(message.msg);
     }.bind(this);
-    this.websocket_.onerror = function() {
+    this.websocket_.onerror = function () {
       reject(Error("WebSocket error."));
     };
   }.bind(this));
 };
-SignalingChannel.prototype.register = function(roomId, clientId) {
+SignalingChannel.prototype.register = function (roomId, clientId) {
   if (this.registered_) {
     console.log("ERROR: SignalingChannel has already registered.");
     return;
@@ -1778,12 +1786,12 @@ SignalingChannel.prototype.register = function(roomId, clientId) {
     return;
   }
   console.log("Registering signaling channel.");
-  var registerMessage = {cmd:"register", roomid:this.roomId_, clientid:this.clientId_};
+  var registerMessage = { cmd: "register", roomid: this.roomId_, clientid: this.clientId_ };
   this.websocket_.send(JSON.stringify(registerMessage));
   this.registered_ = true;
   console.log("Signaling channel registered.");
 };
-SignalingChannel.prototype.close = function(async) {
+SignalingChannel.prototype.close = function (async) {
   if (this.websocket_) {
     this.websocket_.close();
     this.websocket_ = null;
@@ -1792,21 +1800,21 @@ SignalingChannel.prototype.close = function(async) {
     return;
   }
   var path = this.getWssPostUrl();
-  return sendUrlRequest("DELETE", path, async).catch(function(error) {
+  return sendUrlRequest("DELETE", path, async).catch(function (error) {
     console.log("Error deleting web socket connection: " + error.message);
-  }.bind(this)).then(function() {
+  }.bind(this)).then(function () {
     this.clientId_ = null;
     this.roomId_ = null;
     this.registered_ = false;
   }.bind(this));
 };
-SignalingChannel.prototype.send = function(message) {
+SignalingChannel.prototype.send = function (message) {
   if (!this.roomId_ || !this.clientId_) {
     console.log("ERROR: SignalingChannel has not registered.");
     return;
   }
   console.log("C->WSS: " + message);
-  var wssMessage = {cmd:"send", msg:message};
+  var wssMessage = { cmd: "send", msg: message };
   var msgString = JSON.stringify(wssMessage);
   if (this.websocket_ && this.websocket_.readyState === WebSocket.OPEN) {
     this.websocket_.send(msgString);
@@ -1817,7 +1825,7 @@ SignalingChannel.prototype.send = function(message) {
     xhr.send(wssMessage.msg);
   }
 };
-SignalingChannel.prototype.getWssPostUrl = function() {
+SignalingChannel.prototype.getWssPostUrl = function () {
   return this.wssPostUrl_ + "/" + this.roomId_ + "/" + this.clientId_;
 };
 function extractStatAsInt(stats, statObj, statName) {
@@ -1839,7 +1847,7 @@ function extractStat(stats, statObj, statName) {
 }
 function getStatsReport(stats, statObj, statName, statVal) {
   if (stats) {
-    for (var i = 0;i < stats.length;++i) {
+    for (var i = 0; i < stats.length; ++i) {
       var report = stats[i];
       if (report.type === statObj) {
         var found = true;
@@ -1860,7 +1868,7 @@ function computeRate(newReport, oldReport, statName) {
   if (newVal === null || oldVal === null) {
     return null;
   }
-  return(newVal - oldVal) / (newReport.timestamp - oldReport.timestamp) * 1E3;
+  return (newVal - oldVal) / (newReport.timestamp - oldReport.timestamp) * 1E3;
 }
 function computeBitrate(newReport, oldReport, statName) {
   return computeRate(newReport, oldReport, statName) * 8;
@@ -1872,13 +1880,13 @@ function computeE2EDelay(captureStart, remoteVideoCurrentTime) {
   var nowNTP = Date.now() + 22089888E5;
   return nowNTP - captureStart - remoteVideoCurrentTime * 1E3;
 }
-;var Storage = function() {
+; var Storage = function () {
 };
-Storage.prototype.getStorage = function(key, callback) {
+Storage.prototype.getStorage = function (key, callback) {
   if (isChromeApp()) {
-    chrome.storage.local.get(key, function(values) {
+    chrome.storage.local.get(key, function (values) {
       if (callback) {
-        window.setTimeout(function() {
+        window.setTimeout(function () {
           callback(values[key]);
         }, 0);
       }
@@ -1886,13 +1894,13 @@ Storage.prototype.getStorage = function(key, callback) {
   } else {
     var value = localStorage.getItem(key);
     if (callback) {
-      window.setTimeout(function() {
+      window.setTimeout(function () {
         callback(value);
       }, 0);
     }
   }
 };
-Storage.prototype.setStorage = function(key, value, callback) {
+Storage.prototype.setStorage = function (key, value, callback) {
   if (isChromeApp()) {
     var data = {};
     data[key] = value;
@@ -1910,7 +1918,7 @@ function $(selector) {
 function queryStringToDictionary(queryString) {
   var pairs = queryString.slice(1).split("&");
   var result = {};
-  pairs.forEach(function(pair) {
+  pairs.forEach(function (pair) {
     if (pair) {
       pair = pair.split("=");
       if (pair[0]) {
@@ -1924,9 +1932,9 @@ function sendAsyncUrlRequest(method, url, body) {
   return sendUrlRequest(method, url, true, body);
 }
 function sendUrlRequest(method, url, async, body) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     var xhr;
-    var reportResults = function() {
+    var reportResults = function () {
       if (xhr.status !== 200) {
         reject(Error("Status=" + xhr.status + ", response=" + xhr.responseText));
         return;
@@ -1935,7 +1943,7 @@ function sendUrlRequest(method, url, async, body) {
     };
     xhr = new XMLHttpRequest;
     if (async) {
-      xhr.onreadystatechange = function() {
+      xhr.onreadystatechange = function () {
         if (xhr.readyState !== 4) {
           return;
         }
@@ -1950,9 +1958,9 @@ function sendUrlRequest(method, url, async, body) {
   });
 }
 function requestTurnServers(turnRequestUrl, turnTransports) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     var method = isChromeApp() ? "POST" : "GET";
-    sendAsyncUrlRequest(method, turnRequestUrl).then(function(response) {
+    sendAsyncUrlRequest(method, turnRequestUrl).then(function (response) {
       var turnServerResponse = parseJSON(response);
       if (!turnServerResponse) {
         reject(Error("Error parsing response JSON: " + response));
@@ -1968,7 +1976,7 @@ function requestTurnServers(turnRequestUrl, turnTransports) {
       }
       console.log("Retrieved TURN server information.");
       resolve(turnServers);
-    }).catch(function(error) {
+    }).catch(function (error) {
       reject(Error("TURN server request error: " + error.message));
       return;
     });
@@ -1983,7 +1991,7 @@ function parseJSON(json) {
   return null;
 }
 function filterTurnUrls(urls, protocol) {
-  for (var i = 0;i < urls.length;) {
+  for (var i = 0; i < urls.length;) {
     var parts = urls[i].split("?");
     if (parts.length > 1 && parts[1] !== "transport=" + protocol) {
       urls.splice(i, 1);
@@ -1994,14 +2002,14 @@ function filterTurnUrls(urls, protocol) {
 }
 function setUpFullScreen() {
   if (isChromeApp()) {
-    document.cancelFullScreen = function() {
+    document.cancelFullScreen = function () {
       chrome.app.window.current().restore();
     };
   } else {
     document.cancelFullScreen = document.webkitCancelFullScreen || document.mozCancelFullScreen || document.cancelFullScreen;
   }
   if (isChromeApp()) {
-    document.body.requestFullScreen = function() {
+    document.body.requestFullScreen = function () {
       chrome.app.window.current().fullscreen();
     };
   } else {
@@ -2013,7 +2021,7 @@ function isFullScreen() {
   if (isChromeApp()) {
     return chrome.app.window.current().isFullscreen();
   }
-  return!!(document.webkitIsFullScreen || document.mozFullScreen || document.isFullScreen);
+  return !!(document.webkitIsFullScreen || document.mozFullScreen || document.isFullScreen);
 }
 function fullScreenElement() {
   return document.webkitFullScreenElement || document.webkitCurrentFullScreenElement || document.mozFullScreenElement || document.fullScreenElement;
@@ -2030,11 +2038,11 @@ function randomString(strLength) {
 function isChromeApp() {
   return typeof chrome !== "undefined" && typeof chrome.storage !== "undefined" && typeof chrome.storage.local !== "undefined";
 }
-;var apprtc = apprtc || {};
+; var apprtc = apprtc || {};
 apprtc.windowPort = apprtc.windowPort || {};
-(function() {
+(function () {
   var port_;
-  apprtc.windowPort.sendMessage = function(message) {
+  apprtc.windowPort.sendMessage = function (message) {
     var port = getPort_();
     try {
       port.postMessage(message);
@@ -2042,11 +2050,11 @@ apprtc.windowPort = apprtc.windowPort || {};
       console.log("Error sending message via port: " + ex);
     }
   };
-  apprtc.windowPort.addMessageListener = function(listener) {
+  apprtc.windowPort.addMessageListener = function (listener) {
     var port = getPort_();
     port.onMessage.addListener(listener);
   };
-  var getPort_ = function() {
+  var getPort_ = function () {
     if (!port_) {
       port_ = chrome.runtime.connect();
     }
